@@ -1,5 +1,6 @@
 package com.healthmonitor.configuration;
 
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -26,7 +27,8 @@ public class HibernateConfiguration {
     private Environment environment;
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory() {
+    public LocalSessionFactoryBean sessionFactory() throws URISyntaxException
+    {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan(new String[] { "com.healthmonitor.model" });
@@ -35,12 +37,17 @@ public class HibernateConfiguration {
      }
 	
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource() throws URISyntaxException
+    {
+        String dbUrl = System.getenv("JDBC_DATABASE_URL");
+        String username = System.getenv("JDBC_DATABASE_USERNAME");
+        String password = System.getenv("JDBC_DATABASE_PASSWORD");
+
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
-        dataSource.setUrl(environment.getRequiredProperty("jdbc.url"));
-        dataSource.setUsername(environment.getRequiredProperty("jdbc.username"));
-        dataSource.setPassword(environment.getRequiredProperty("jdbc.password"));
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
         return dataSource;
     }
     
